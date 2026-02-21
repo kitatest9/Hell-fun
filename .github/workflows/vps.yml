@@ -134,7 +134,7 @@ jobs:
            
            if [[ "$SSH_MSG" == *"tmate.io"* ]]; then
               PAYLOAD=$(jq -n --arg ssh "$SSH_MSG" --arg file "$FILE_MANAGER_URL" --arg btop "$BTOP_URL" --arg bots "$ACTIVE_BOTS" \
-                '{content: "🚨 **VPS Dashboard Restarted**\n🤖 **Bots:** `\($bots)`\n📁 **File:** \($file)\n📊 **Btop:** \($btop)\n💻 **SSH:** `\($ssh)`"}')
+                '{content: "🚨 **VPS Dashboard Restarted**\n🤖 **Bots:** `\($bots)`\n\n📁 **File:** \($file)\n\n📊 **Btop:** \($btop)\n\n💻 **SSH:** ```\($ssh)`"}')
               
               curl -H "Content-Type: application/json" -d "$PAYLOAD" $DISCORD_WEBHOOK
               
