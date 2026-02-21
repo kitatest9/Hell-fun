@@ -91,7 +91,7 @@ jobs:
             BOT_NAME=$(basename "$dir")
             BOT_LIST="${BOT_LIST}${BOT_NAME}, "
             cd "$dir"
-            npm install
+            npm install --legacy-peer-deps
             if [ -f "index.js" ]; then pm2 start index.js --name "$BOT_NAME"; else pm2 start npm --name "$BOT_NAME" -- start; fi
             cd ..
           fi
