@@ -27,6 +27,7 @@
   "homepage": "https://github.com/FantoX/Atlas-MD#readme",
   "dependencies": {
     "@adiwajshing/keyed-db": "^0.2.4",
+    "@distube/ytdl-core": "^4.16.12",
     "@fantox01/lyrics-scraper": "^3.0.1",
     "@hapi/boom": "^10.0.1",
     "@kelvdra/bails": "^1.4.7",
@@ -76,7 +77,6 @@
     "wa-sticker-formatter": "^4.4.4",
     "ws": "^8.19.0",
     "youtube-yts": "^2.0.0",
-    "youtubedl-core": "^4.11.7",
     "ytdl-core": "^4.11.5",
     "z-anime": "^1.1.3"
   },
