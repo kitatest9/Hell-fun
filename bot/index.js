@@ -6,7 +6,7 @@ const {
   downloadContentFromMessage,
   makeInMemoryStore,
   jidDecode,
-} = require("baileysjs");
+} = require("@kelvdra/baileys");
 const fs = require("fs");
 const figlet = require("figlet");
 const { join } = require("path");
@@ -80,6 +80,9 @@ const startAtlas = async () => {
     browser: ["Atlas", "Safari", "1.0.0"],
     auth: state,
     version,
+    getMessage: async (key) => {
+        return (store.loadMessage(key.remoteJid, key.id) || {}).message || undefined;
+    }
   });
 
   store.bind(Atlas.ev);
