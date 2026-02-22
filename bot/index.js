@@ -1,12 +1,12 @@
-require("./Configurations");
-const {
+require("./Configurations");const {
   default: atlasConnect,
   DisconnectReason,
   fetchLatestBaileysVersion,
   downloadContentFromMessage,
   makeInMemoryStore,
   jidDecode,
-} = require("baileysjs");
+  getContentType // Ye naye versions mein message type check karne ke liye zaroori hai
+} = require("@kelvdra/bails");
 const fs = require("fs");
 const figlet = require("figlet");
 const { join } = require("path");
@@ -19,6 +19,7 @@ const { serialize, WAConnection } = require("./System/whatsapp.js");
 const { smsg, getBuffer, getSizeMedia } = require("./System/Function2");
 const express = require("express");
 const app = express();
+const chalk = require("chalk");
 const PORT = global.port;
 const welcomeLeft = require("./System/Welcome.js");
 const { readcommands, commands } = require("./System/ReadCommands.js");
@@ -30,7 +31,6 @@ const {
   getPluginURLs, // -------------------- GET ALL PLUGIN DATA FROM DATABASE
 } = require("./System/MongoDB/MongoDb_Core.js");
 
-const chalk = require("chalk");
 const store = makeInMemoryStore({
   logger: pino().child({
     level: "silent",
