@@ -54,7 +54,8 @@ module.exports = async (Atlas, m, commands, chatUpdate) => {
     const itsMe = messSender.includes(botNumber) ? true : false;
 
     const isCmd = body.startsWith(prefix);
-    const mime = (quoted.msg || m.msg).mimetype || " ";
+    // Is line ko dhoondo aur replace karo:
+    const mime = (quoted?.msg || quoted || m?.msg || m)?.mimetype || " ";
     const isMedia = /image|video|sticker|audio/.test(mime);
     const budy = typeof m.text == "string" ? m.text : "";
     const args = body.trim().split(/ +/).slice(1);
@@ -207,16 +208,27 @@ module.exports = async (Atlas, m, commands, chatUpdate) => {
         `Bot is active, type *${prefix}help* to see the list of commands.`
       );
     }
-    if (body.startsWith(prefix) && !icmd) {
+    
+            if (body.startsWith(prefix) && !icmd) {
       await doReact("❌");
-      return m.reply(
-        `*${budy.replace(
-          prefix,
-          ""
-        )}* - Command not found or plug-in not installed !\n\nIf you want to see the list of commands, type:    *_${prefix}help_*\n\nOr type:  *_${prefix}pluginlist_* to see installable plug-in list.`
-      );
+      
+      const notFoundText = `*⚠️ ${budy.replace(prefix, "")} - Command Not Found!*\n\nPlease click the button below to explore the full command list.`;
+
+      // Button Message Logic
+      const buttonMessage = {
+          text: notFoundText,
+          footer: `© ${global.botName || "Atlas Bot"}`,
+          buttons: [
+            { buttonId: `${prefix}menu`, buttonText: { displayText: '📜 View Menu' }, type: 1 }
+          ],
+          headerType: 1
+      };
+
+      return Atlas.sendMessage(m.from, buttonMessage, { quoted: m });
     }
 
+    
+    
     if (isAntilinkOn && m.isGroup && !isAdmin && !isCreator && isBotAdmin) {
       const linkgce = await Atlas.groupInviteCode(from);
       if (budy.includes(`https://chat.whatsapp.com/${linkgce}`)) {
