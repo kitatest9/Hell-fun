@@ -1,0 +1,109 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+// --- Official WhiskeySockets Imports ---
+const baileys = require('@whiskeysockets/baileys');
+const { 
+    default: makeWASocket, 
+    useMultiFileAuthState, 
+    DisconnectReason, 
+    makeCacheableSignalKeyStore,
+    fetchLatestBaileysVersion,
+    Browsers 
+} = baileys;
+
+const { Boom } = require('@hapi/boom');
+const pino = require('pino');
+const readline = require('readline');
+const fs = require('fs');
+
+// Terminal Input Setup
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const question = (text) => new Promise((resolve) => rl.question(text, resolve));
+
+async function startBot() {
+    // --- STEP 3: Auth & Session Management ---
+    // 'auth_info_baileys' folder mein login data save hoga
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+    
+    // Latest WhatsApp version fetch karna
+    const { version } = await fetchLatestBaileysVersion();
+
+    console.log("🚀 Starting Bot Setup...");
+
+    // --- STEP 2: Socket Configuration ---
+    const sock = makeWASocket({
+        version,
+        auth: {
+            creds: state.creds,
+            keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "silent" }))
+        },
+        printQRInTerminal: false,
+        logger: pino({ level: 'silent' }),
+        browser: Browsers.ubuntu('Chrome'), 
+        syncFullHistory: false
+    });
+
+    // --- PAIRING CODE LOGIC ---
+    if (!sock.authState.creds.registered) {
+        console.log("\n--- 📲 WHATSAPP PAIRING CODE SETUP ---");
+        const phoneNumber = await question("Apna Number likhein (Example: 923001234567): ");
+        
+        setTimeout(async () => {
+            try {
+                const code = await sock.requestPairingCode(phoneNumber.trim());
+                console.log(`\n🔥 AAPKA PAIRING CODE HAI: ${code}\n`);
+                console.log("Isay WhatsApp > Linked Devices > Link with Phone Number mein enter karein.\n");
+            } catch (err) {
+                console.log("❌ Pairing Error: ", err);
+            }
+        }, 3000);
+    }
+
+    // --- STEP 4: Handling Events ---
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect } = update;
+        if (connection === 'close') {
+            const reason = (new Boom(lastDisconnect?.error))?.output?.statusCode;
+            const shouldReconnect = reason !== DisconnectReason.loggedOut;
+            
+            console.log('⚠️ Connection closed. Reconnecting:', shouldReconnect);
+            
+            if (shouldReconnect) {
+                startBot();
+            } else {
+                console.log("🚫 Logged Out! 'auth_info_baileys' folder delete kar ke dobara start karein.");
+            }
+        } else if (connection === 'open') {
+            console.log('\n✅ Connection opened! Bot is Online and Ready.');
+            
+            // Apne number par message bhejna
+            const myId = sock.user.id.split(':') + '@s.whatsapp.net';
+            sock.sendMessage(myId, { text: '🚀 *System Alive!* Bot successfully connect ho gaya.' });
+        }
+    });
+
+    // Credentials save karna
+    sock.ev.on('creds.update', saveCreds);
+
+    // --- MESSAGES HANDLING ---
+    sock.ev.on('messages.upsert', async (event) => {
+        for (const m of event.messages) {
+            if (!m.message || m.key.fromMe) return;
+            
+            const from = m.key.remoteJid;
+            const text = m.message.conversation || m.message.extendedTextMessage?.text || "";
+
+            // Basic Commands
+            if (text.toLowerCase() === 'ping') {
+                await sock.sendMessage(from, { text: 'Pong! 🏓 Bot is Online.' });
+            } 
+            else if (text.toLowerCase() === 'alive') {
+                await sock.sendMessage(from, { text: 'Boss! I am Alive. 😎' }, { quoted: m });
+            }
+        }
+    });
+}
+
+// Bot Start
+startBot().catch(err => console.log("Critical Error: " + err));

@@ -1,0 +1,8 @@
+{
+  "ignore": [
+    "auth_info_baileys/*",
+    "database.json",
+    "*.json"
+  ],
+  "delay": "1000"
+}
