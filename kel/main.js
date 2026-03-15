@@ -187,7 +187,7 @@ export const handleMessages = async (sock, chatUpdate) => {
                 try {
                     const botId = (sock.user.id.split(':') || sock.user.id) + '@s.whatsapp.net';
                     await cmd.execute(sock, m, args, { 
-                        config, isOwner, isGroup, db, saveDB, 
+                        config, isOwner, isGroup, db, saveDB, from,  
                         pushName, sender, senderNumber, botId, 
                         proto, generateWAMessageFromContent, prepareWAMessageMedia 
                     });

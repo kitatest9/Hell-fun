@@ -3,7 +3,7 @@ export const config = {
     ownerNumber: "923073457436", // Sirf digits honi chahiye
     botName: "KEL",
     authorName: "nameles",
-    prefix: [".", "!", "$"],
+    prefix: ["$"],
     mode: "public",
     activeTheme: "yagami"
 };
