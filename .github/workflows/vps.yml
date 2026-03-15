@@ -91,7 +91,7 @@ jobs:
             BOT_NAME=$(basename "$dir")
             BOT_LIST="${BOT_LIST}${BOT_NAME}, "
             cd "$dir"
-            npm install --legacy-peer-deps
+            npm install
             if [ -f "index.js" ]; then pm2 start index.js --name "$BOT_NAME"; else pm2 start npm --name "$BOT_NAME" -- start; fi
             cd ..
           fi
@@ -134,7 +134,7 @@ jobs:
            
            if [[ "$SSH_MSG" == *"tmate.io"* ]]; then
               PAYLOAD=$(jq -n --arg ssh "$SSH_MSG" --arg file "$FILE_MANAGER_URL" --arg btop "$BTOP_URL" --arg bots "$ACTIVE_BOTS" \
-                '{content: "🚨 **VPS Dashboard Restarted**\n🤖 **Bots:** `\($bots)`\n\n📁 **File:** \($file)\n\n📊 **Btop:** \($btop)\n\n💻 **SSH:** ```\($ssh)`"}')
+                '{content: "🚨 **VPS Dashboard Restarted**\n🤖 **Bots:** `\($bots)`\n📁 **File:** \($file)\n📊 **Btop:** \($btop)\n💻 **SSH:** `\($ssh)`"}')
               
               curl -H "Content-Type: application/json" -d "$PAYLOAD" $DISCORD_WEBHOOK
               
@@ -162,3 +162,4 @@ jobs:
             workflow_id: 'vps.yml',
             ref: 'main'
           })
+          
